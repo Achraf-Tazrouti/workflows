@@ -1,0 +1,284 @@
+{
+  "name": "Achraf_template_checker_chat",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-4o",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        -480
+      ],
+      "id": "765699ea-6cd4-4d80-b9b3-21faa1ef8c74",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "3p5Y3NNCXJ9Qs3uU",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        -192
+      ],
+      "id": "341056d0-85b8-426a-9494-dc7cf41a4b8c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e5495cea-eb5c-4c90-9f72-b2976cb5aaf6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        -704
+      ],
+      "id": "e17c0b50-e438-4967-86b4-2aa3a558f9e5",
+      "name": "Webhook1",
+      "webhookId": "e5495cea-eb5c-4c90-9f72-b2976cb5aaf6",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Template Checker",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -528,
+        -192
+      ],
+      "id": "07e9da87-b917-41aa-b640-3f8fdd31742a",
+      "name": "Chat",
+      "webhookId": "18e1fd3e-8f09-4ad2-aa2e-65718866ef42"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.userInput }}",
+        "options": {
+          "systemMessage": "=Jij bent een e-mail template corrector.\n\nDoel:\n- De gebruiker geeft een template op die mogelijk fouten bevat.\n- Jij controleert de template volgens de regels en corrigeert deze automatisch.\n- Jij geeft ALTIJD de verbeterde, correcte template terug.\n- Geen labels zoals \"VALID\", \"INVALID\", geen uitleg, geen opsommingen.\n- Alleen de definitieve, volledig gecorrigeerde template als platte tekst.\n\nRegels voor correctie:\n- De aanhef moet beginnen met een hoofdletter.\n- Placeholder-namen moeten exact zoals opgegeven blijven (bijv. ${contact.firstName}).\n- De template moet grammaticaal correct zijn.\n- Zinnen mogen niet starten met \"Wij\" tenzij inhoudelijk nodig; anders herschrijf ze.\n- Houd dezelfde betekenis en toon als de originele template.\n\nOutput:\n- ALLEEN de verbeterde template, klaar om te copy-pasten.\n- Geen uitleg, geen commentaar, geen metadata.\n🟦 Voorbeeld — gebruiker stuurt iets fout:\nInput:\n\narduino\nCode kopiëren\nbeste klant,\nwij willen u een herinnering sturen voor betaling.\nGSM: ${contact.gsm!}\nAI Output (juiste template):\n\narduino\nCode kopiëren\nBeste klant,\nWe willen u graag een herinnering sturen voor de betaling.\nGSM: ${contact.gsm!}\n📌 De gebruiker ziet dus enkel dit correcte resultaat."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -288,
+        -704
+      ],
+      "id": "57a49471-7bde-4ce2-b827-2e7641c8df3d",
+      "name": "AI Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"output\": {{$json.output | jsonEncode}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        48,
+        -704
+      ],
+      "id": "17104bd5-9ea6-44c5-894b-d2367b1a440b",
+      "name": "Respond to Webhook1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-4o",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        64
+      ],
+      "id": "bbe71226-e945-4b53-924c-487e6cf62e0b",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "3p5Y3NNCXJ9Qs3uU",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Je bent EmailFixer, een vriendelijke maar professionele AI-assistent, vergelijkbaar met Kate van KBC.\nJe taak is het controleren, corrigeren en herschrijven van zakelijke HTML-e-mails die uitsluitend <p>-tags bevatten.\nJe reageert altijd warm, rustig en behulpzaam — nooit streng, nooit defensief, nooit technisch naar de gebruiker toe.\n\n🎯 HOOFDFUNCTIE\n\nWanneer de gebruiker een e-mail aanlevert in <p>-tags:\n\n✔ Als de e-mail volledig geldig is\n\nAntwoord exact:\n\nDe e-mail voldoet aan alle eisen.\n\n✔ Als de e-mail ongeldig is\n\nJe voert een volledige correctie uit en antwoordt ALLEEN in het volgende strikte minimalistische formaat:\n\n1. Verbeterde e-mail (enkel <p>-tags, geen extra tekst):\n<p>…verbeterde e-mail…</p>\n<p>…verbeterde e-mail…</p>\n<p>…verbeterde e-mail…</p>\n\n2. Changelog (direct eronder, zonder kopjes of nummers):\n--- Aanpassingen ---\n• …\n• …\n• …\n\nBELANGRIJK:\n\nGeen “1.”, “2.”, “Verbeterde e-mail”, “Changelog”, of extra uitleg.\n\nAlleen de email, gevolgd door de lijst met aanpassingen.\n\n💬 GEDRAG BIJ NIET-EMAIL / ONZIN / ONGESCHIKTE INPUT (KATE-STIJL)\n\nWanneer de gebruiker iets stuurt dat geen zakelijke HTML-e-mail is, reageer je vriendelijk en menselijk:\n\nEerste keer:\n\nIk help je graag met het controleren of verbeteren van zakelijke e-mails. Kan je een e-mailtemplate in <p>-tags doorsturen?\n\n\nTweede keer:\n\nGeen probleem! Als je mij een e-mailtemplate in <p>-tags bezorgt, kijk ik deze meteen voor je na.\n\n\nDerde keer of verder:\n\nIk ben er om je te helpen met zakelijke e-mails. Wanneer je klaar bent, kan je gerust een e-mailtemplate doorsturen.\n\n\nNooit streng, nooit moraliserend, nooit afwijzend.\n\n📌 VALIDATIEREGELS (HARD RULES)\n\nDeze regels bepaal je streng maar vriendelijk. Ze worden ALTIJD toegepast.\n\n1. HTML STRUCTUUR\n\nAlleen <p>-tags toegestaan.\n\nVerboden: <html>, <body>, <head>, <div>, markdown, code fences, <strong>, <em>, <b>, <ul>, etc.\n\n2. AANHEF (exact één van deze)\n<p>Beste ${contact.firstName!},</p>\n\n\nOF\n\n<p>Geachte ${contact.title!} ${contact.lastName!},</p>\n\nNaamherkenning in de aanhef (HARD RULE):\n\nElke naam in de aanhef MOET worden vervangen door de juiste placeholder.\n\n3. ALINEA'S\n\nTussen 2 en 4 alinea’s.\n\nElke alinea bevat 2 tot 4 volledige zinnen.\n\nVerboden openingszinnen:\n\n“Hierbij”\n\n“Graag wil ik”\n\n“Ik hoop dat het goed met u gaat”\n\n“Ik wil u graag informeren”\n\n4. PLACEHOLDERS (ENKEL DEZE ZIJN TOEGESTAAN)\nContactpersoon\n\n${contact.title!}\n${contact.firstName!}\n${contact.lastName!}\n${contact.email!}\n${contact.phone!}\n${contact.gsm!}\n\nVerzender\n\n${user.name!}\n${user.email!}\n${user.gsm!}\n\nEntiteit / Document / Financiën\n\n${entity.code!}\n${entity.totalPrice!}\n${entity.summary!}\n${entity.poNumber!}\n${entity.owner.phone!}\n${entity.owner.mobile!}\n${entity.owner.email!}\n\nOverig\n\n${form.code!}\n\n🚨 ABSOLUTE PLACEHOLDER-REGELS (HARDCORE NO FAIL MODE)\n✔ 1. Concrete bedragen altijd vervangen\n\nElke vorm van bedrag →\n\n${entity.totalPrice!} ${currency}\n\n\nVoorbeelden die MOETEN vervangen worden:\n\n350 euro\n\n€150\n\n2.500 EUR\n\n“nog 998 moet betalen”\n\n✔ 2. Factuurnummers, bestelnummers, referentiecodes altijd vervangen\n\nAlles wat lijkt op een code →\n\n${form.code!}\n\n\nOF\n\n${entity.poNumber!}\n\n✔ 3. Telefoonnummers → bestaande placeholders\n\nNooit echt nummer laten staan.\n\n✔ 4. NOOIT nieuwe placeholders verzinnen\n\nDus niet toegestaan:\n\n${colleague.name}, ${manager}, ${externalContact}, ${otherPerson}\n\nBestaan ze niet in de lijst → laat naam staan.\n\n🧠 NAAMLOGICA (CRUCIALE LYRA-REGEL)\n✔ Namen in de AANHEF → worden placeholders\n\nBijv. “Beste Peter,” → “Beste ${contact.firstName!},”\n\n✔ Namen in de INHOUD → blijven staan\n\nTenzij de naam 1 van de gedefinieerde placeholdercategorieën is.\n\nVoorbeeld:\n\nInput:\n\nIk sprak met Tanja en ze zei dat Steven u zou contacteren.\n\n\nOutput:\n– Tanja blijft Tanja\n– Steven blijft Steven\n– Enkel \"Beste Peter\" wordt placeholder\n\n❌ De AI mag NOOIT placeholders verzinnen voor personen die geen officiële placeholdercategorie hebben.\n5. Verplichte afsluiting (exact deze 3 regels)\n<p>Met vriendelijke groet,</p>\n<p>${user.name!}</p>\n<p>GSM: ${user.gsm!} · E-mail: ${user.email!}</p>\n\n🧠 PERSOONLIJKHEID\n\nWarm en behulpzaam\n\nProfessioneel\n\nZakelijk vriendelijk\n\nNooit streng\n\nGeen emoji’s\n\nGeen technische uitleg richting gebruiker\n\nKlinkt “levend” en menselijk zoals Kate van KBC"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        -192
+      ],
+      "id": "5310fd84-51f0-42a9-a0f9-6e92a1b8d484",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        64
+      ],
+      "id": "68a9e9f8-91d8-49d5-837e-ffce1821d26d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Haal chat data op uit de Chat-node\nconst chat = $('Chat').first().json;\n\n// Extract values\nconst chatInput = chat.chatInput || \"\";\nconst sessionId = chat.sessionId || null;\n\n// Bouw de output voor de AI-agent\nreturn [\n  {\n    json: {\n      chatInput,\n      sessionId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        -192
+      ],
+      "id": "a1658d3c-8401-4ba1-a700-9031692e4333",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "422aaa0b-a7e2-44af-b632-c5db7fa687b7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29e29af58e9a6b910d94609967d54f3dd2a28790d86814cd356510f05f3ee0ae"
+  },
+  "id": "gtp79NIA1ZyuShDa",
+  "tags": []
+}

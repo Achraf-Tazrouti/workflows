@@ -1,0 +1,264 @@
+{
+  "name": "chatbot_SenChraf",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c2add0-cfed-461f-a3e7-554285f4ae6f",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -688,
+        176
+      ],
+      "id": "4e041271-8a39-491c-84ce-df2af4a006dc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"output\": \"Hey, hoe kan ik je helpen vandaag?\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -320,
+        400
+      ],
+      "id": "a33b77b2-6ece-44e8-bd16-058934fd96e0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        256
+      ],
+      "id": "6b9ffb62-f440-4230-a661-efee06e47585",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VHowYCVYW6U2h5gh",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        256
+      ],
+      "id": "9f21c5ec-e2b7-45a4-b6ff-6528ad353cfd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        288,
+        80
+      ],
+      "id": "da722d2f-2dc3-4345-9643-031cf93d52a0",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "url": "https://app.deskdrive.com/app/seam/resource/rest/batch/json/7aa5b568-f4cb-43fa-893e-31b1405f2936?apiKey=6294344d-035f-4446-8c82-6e98b97f1edd&page=175",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -480,
+        80
+      ],
+      "id": "b1c37f38-084d-4751-83b0-b307ef786248",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Alle facturen verzamelen\nconst allInvoices = $input.all().map(item => item.json).flat();\n\n// Berekende statistieken\nconst totalAmountIncl = allInvoices.reduce((sum, inv) => sum + (inv.amountIncl || 0), 0);\nconst totalAmountEx = allInvoices.reduce((sum, inv) => sum + (inv.amountEx || 0), 0);\nconst suppliers = [...new Set(allInvoices.map(inv => inv.customerName))];\n\n// Datum formateren\nconst formatDate = (timestamp) => {\n  if (!timestamp) return null;\n  const date = new Date(timestamp);\n  return date.toLocaleDateString('nl-NL');\n};\n\n// Alle datums bepalen\nconst datums = allInvoices.map(inv => inv.entityDate).filter(Boolean);\nconst minDatum = datums.length > 0 ? new Date(Math.min(...datums)) : null;\nconst maxDatum = datums.length > 0 ? new Date(Math.max(...datums)) : null;\n\n// Groepeer facturen per leverancier\nconst facturenPerLeverancier = {};\nallInvoices.forEach(inv => {\n  if (!facturenPerLeverancier[inv.customerName]) {\n    facturenPerLeverancier[inv.customerName] = [];\n  }\n  facturenPerLeverancier[inv.customerName].push(inv);\n});\n\n// Haal de originele chat input op\nconst chatNode = $('Chat').first().json;\n\n// Maak een uitgebreide context string met ALLE velden\nconst factuurContext = `\n═══════════════════════════════════════════════════════\nFACTUUR OVERZICHT\n═══════════════════════════════════════════════════════\n\n📊 ALGEMENE STATISTIEKEN\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n- Totaal aantal facturen: ${allInvoices.length}\n- Totaalbedrag (incl. BTW): €${totalAmountIncl.toFixed(2)}\n- Totaalbedrag (excl. BTW): €${totalAmountEx.toFixed(2)}\n- Totaal BTW: €${(totalAmountIncl - totalAmountEx).toFixed(2)}\n- Gemiddeld bedrag per factuur: €${(allInvoices.length ? totalAmountIncl / allInvoices.length : 0).toFixed(2)}\n- Aantal leveranciers: ${suppliers.length}\n- Betaalde facturen: ${allInvoices.filter(inv => inv.paid).length}\n- Openstaande facturen: ${allInvoices.filter(inv => !inv.paid).length}\n${minDatum && maxDatum ? `• Periode: ${formatDate(minDatum.getTime())} tot ${formatDate(maxDatum.getTime())}` : ''}\n\n📋 FACTUREN PER LEVERANCIER (VOLLEDIG DETAIL)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${Object.entries(facturenPerLeverancier).map(([leverancier, facturen]) => {\n  const totaalBedrag = facturen.reduce((sum, f) => sum + f.amountIncl, 0);\n  const betaald = facturen.filter(f => f.paid).length;\n  const open = facturen.length - betaald;\n  \n  return `\n▸ ${leverancier}\n  Aantal: ${facturen.length} facturen | Totaal: €${totaalBedrag.toFixed(2)}\n  Status: ${betaald} betaald, ${open} openstaand\n  \n  Facturen:\n${facturen.map(f => `\n  ┌─ ${f.code}\n  │  Factuurnummer: ${f.formattedSequence}\n  │  Klant: ${f.customerName} (Code: ${f.customerCode})\n  │  Bedrag excl. BTW: €${f.amountEx.toFixed(2)}\n  │  Bedrag incl. BTW: €${f.amountIncl.toFixed(2)}\n  │  BTW: €${(f.amountIncl - f.amountEx).toFixed(2)}\n  │  Factuurdatum: ${formatDate(f.entityDate)}\n  │  Vervaldatum: ${formatDate(f.dueDate)}\n  │  Status: ${f.paid ? '✓ Betaald' : '⏳ Openstaand'}\n  │  Gekoppelde entiteit: ${f.linkedEntity || 'Geen'}\n  │  Laatst gewijzigd: ${formatDate(f.lastModified)}\n  └─`\n).join('\\n')}\n`;\n}).join('\\n')}\n\n═══════════════════════════════════════════════════════\n`.trim();\n\n// Output voor AI Agent\nreturn [\n  {\n    json: {\n      chatInput: chatNode.chatInput,\n      sessionId: chatNode.sessionId,\n      factuurContext: factuurContext,\n      // Structured data voor complexe queries en filtering\n      facturenRaw: allInvoices.map(inv => ({\n        code: inv.code,\n        formattedSequence: inv.formattedSequence,\n        customerName: inv.customerName,\n        customerCode: inv.customerCode,\n        amountEx: inv.amountEx,\n        amountIncl: inv.amountIncl,\n        btw: (inv.amountIncl - inv.amountEx).toFixed(2),\n        entityDate: formatDate(inv.entityDate),\n        dueDate: formatDate(inv.dueDate),\n        paid: inv.paid,\n        linkedEntity: inv.linkedEntity || null,\n        lastModified: formatDate(inv.lastModified)\n      })),\n      statistieken: {\n        totaalAantal: allInvoices.length,\n        totaalBedragIncl: totalAmountIncl.toFixed(2),\n        totaalBedragEx: totalAmountEx.toFixed(2),\n        totaalBTW: (totalAmountIncl - totalAmountEx).toFixed(2),\n        leveranciers: suppliers,\n        betaald: allInvoices.filter(inv => inv.paid).length,\n        open: allInvoices.filter(inv => !inv.paid).length\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        80
+      ],
+      "id": "0d3f12f7-fb2e-4876-a1a8-ef4619cd07e4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -896,
+        176
+      ],
+      "id": "62a323bc-d336-4b7f-9462-12497d9091a3",
+      "name": "Chat",
+      "webhookId": "9ff1513e-d01b-4c4c-b4ba-fd01325a82fe"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Je bent een AI-assistent gespecialiseerd in factuuranalyse.\nJe gebruikt uitsluitend de onderstaande factuurgegevens om vragen te beantwoorden.\n\n{{ $json.factuurContext }}\n\n═══════════════════════════════════════════════════════\nBESCHIKBARE VELDEN PER FACTUUR\n═══════════════════════════════════════════════════════\n\n- code: Interne factuurcode (bijv. FAC-160001)\n- formattedSequence: Gestructureerde factuurnummer (bijv. +++000/0000/01616+++)\n- customerName: Naam leverancier/klant\n- customerCode: Klantcode (bijv. CO-150002)\n- amountEx: Bedrag exclusief BTW\n- amountIncl: Bedrag inclusief BTW\n- btw: BTW-bedrag (berekend als amountIncl - amountEx)\n- entityDate: Factuurdatum\n- dueDate: Vervaldatum\n- paid: Betaalstatus (true = betaald, false = openstaand)\n- linkedEntity: Gekoppelde order/entiteit (bijv. ORD-2016-030001)\n- lastModified: Laatste wijzigingsdatum\n\n═══════════════════════════════════════════════════════\nINSTRUCTIES VOOR ANTWOORDEN\n═══════════════════════════════════════════════════════\n\n**1. ALGEMENE VRAGEN** (zoals \"geef overzicht van facturen\")\n\nFormat:\n📊 **Samenvatting**\n- Totaal aantal: X facturen\n- Totaalbedrag: €X incl. BTW (€X excl. BTW)\n- BTW totaal: €X\n- Gemiddeld bedrag: €X per factuur\n- Leveranciers: X verschillende leveranciers\n- Status: X betaald, X openstaand\n- Periode: dd-mm-jjjj tot dd-mm-jjjj\n\n**2. VRAGEN PER LEVERANCIER** (zoals \"facturen van LNKnits\")\n\nFormat:\n📋 **[Leverancier]**: X facturen (€X totaal)\n\nStatus: X betaald, X openstaand\n\nFacturen:\n- FAC-XXXXX - €XXX incl. - dd-mm-jjjj - ✓ Betaald\n- FAC-XXXXX - €XXX incl. - dd-mm-jjjj - ⏳ Openstaand\n\n_(Als er meer dan 5 facturen zijn: toon top 5 en geef samenvatting van de rest)_\n\n**3. SPECIFIEKE VELDVRAGEN** (zoals \"geef alle factuurcodes van LNKnits\" of \"wat zijn de linkedEntity waarden\")\n\nFormat:\n📋 **[Leverancier] - [Gevraagd veld]:**\n\n- [Waarde 1]\n- [Waarde 2]\n- [Waarde 3]\n...\n\nVoorbeeld bij \"geef factuurcodes van LNKnits\":\n📋 **LNKnits - Factuurcodes:**\n- FAC-160001\n- FAC-160008\n- FAC-160014\n...\n\n**4. DETAIL VAN SPECIFIEKE FACTUUR** (zoals \"geef details van FAC-160001\")\n\nFormat:\n📄 **Factuur [code]**\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n**Klantgegevens**\n- Naam: [customerName]\n- Klantcode: [customerCode]\n\n**Factuurnummers**\n- Interne code: [code]\n- Factuurnummer: [formattedSequence]\n\n**Bedragen**\n- Excl. BTW: €[amountEx]\n- BTW: €[btw]\n- Incl. BTW: €[amountIncl]\n\n**Data**\n- Factuurdatum: [entityDate]\n- Vervaldatum: [dueDate]\n- Laatst gewijzigd: [lastModified]\n\n**Status & Koppeling**\n- Betaalstatus: [✓ Betaald / ⏳ Openstaand]\n- Gekoppelde order: [linkedEntity of \"Geen\"]\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**5. VERGELIJKINGS- OF ANALYSEVRAGEN** (zoals \"welke leverancier heeft de hoogste facturen\")\n\nFormat:\n📊 **[Analyse titel]**\n\n1. [Leverancier 1]: €XXX (X facturen)\n2. [Leverancier 2]: €XXX (X facturen)\n3. [Leverancier 3]: €XXX (X facturen)\n...\n\n═══════════════════════════════════════════════════════\nBELANGRIJKE REGELS\n═══════════════════════════════════════════════════════\n\n✓ Gebruik ALTIJD witregels tussen secties voor leesbaarheid\n✓ Gebruik emoji's: 📊 (statistieken), 📋 (lijsten), 📄 (details), ✓ (betaald), ⏳ (openstaand)\n✓ Gebruik bullets (•) voor lijstitems\n✓ Toon maximaal 5-10 individuele facturen in één response\n✓ Bij >10 resultaten: geef eerst samenvatting, vraag dan of gebruiker wil filteren\n✓ Geef alleen de gevraagde informatie (niet altijd alle velden)\n✓ Wees beknopt maar compleet\n✓ Antwoord ALTIJD in het Nederlands\n✓ Gebruik exacte bedragen en data uit de context\n✓ Als een veld leeg is (zoals linkedEntity), vermeld \"Geen\" of laat het weg\n\n✗ NOOIT meer dan 10 individuele facturen tegelijk tonen\n✗ NOOIT informatie verzinnen die niet in de context staat\n✗ NOOIT facturen door elkaar halen of verkeerde data toewijzen\n\n═══════════════════════════════════════════════════════\nVOORBEELDEN\n═══════════════════════════════════════════════════════\n\n**Voorbeeld 1:**\nVraag: \"Geef overzicht van alle facturen\"\n\nAntwoord:\n📊 **Samenvatting**\n- Totaal aantal: 50 facturen\n- Totaalbedrag: €31.938,50 incl. BTW (€26.395,38 excl. BTW)\n- BTW totaal: €5.543,12\n- Gemiddeld bedrag: €638,77 per factuur\n- Leveranciers: 18 verschillende leveranciers\n- Status: 45 betaald, 5 openstaand\n- Periode: 20-3-2016 tot 31-3-2017\n\nWilt u meer details over specifieke leveranciers of facturen?\n\n---\n\n**Voorbeeld 2:**\nVraag: \"Geef de factuurcodes van LNKnits\"\n\nAntwoord:\n📋 **LNKnits - Factuurcodes:**\n\n- FAC-160001\n- FAC-160008\n- FAC-160014\n- FAC-160022\n- FAC-160023\n- FAC-170003\n- FAC-170007\n- FAC-170020\n\nTotaal: 8 facturen (€4.441,99)\n\n---\n\n**Voorbeeld 3:**\nVraag: \"Wat zijn de linkedEntity waarden voor LNKnits?\"\n\nAntwoord:\n📋 **LNKnits - Gekoppelde orders:**\n\n- FAC-160001 → ORD-2016-030001\n- FAC-160008 → ORD-2016-060001\n- FAC-160014 → ORD-2016-070001\n- FAC-160022 → ORD-2016-100001\n- FAC-160023 → ORD-2016-100002\n- FAC-170003 → ORD-2016-120001\n- FAC-170007 → ORD-2017-010001\n- FAC-170020 → ORD-2017-030001\n\n---\n\n**Voorbeeld 4:**\nVraag: \"Welke facturen zijn openstaand?\"\n\nAntwoord:\n⏳ **Openstaande facturen (5 totaal - €60,50)**\n\n- FAC-160004 - Secur Beveiliging - €60,50 - Vervaldatum: 27-3-2016\n- FAC-160003 - Impact Consultancy - €60,50 - Vervaldatum: 21-3-2016\n- FAC-160006 - LN|Knits - €60,50 - Vervaldatum: 5-6-2016\n- FAC-170005 - Eliuscompany bvba - €1.578,69 - Vervaldatum: 5-1-2017\n- FAC-170016 - Eliuscompany bvba - €-1.578,69 - Vervaldatum: 6-3-2017\n\nLet op: FAC-170016 is een creditnota die FAC-170005 compenseert.\n\n═══════════════════════════════════════════════════════\n\nBeantwoord nu de vraag van de gebruiker op basis van bovenstaande richtlijnen."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1e594580-bad9-4b79-b7bf-8411914ce201",
+      "name": "AI Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b84cec29-0201-4f95-b8dd-c7ebb3cbf3f2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "84039ed517854c2c4d7b8185d3800f7b137aedff27ebbb28ab9d4fe922853d1b"
+  },
+  "id": "FJCv64yNEwSKySjs",
+  "tags": []
+}
