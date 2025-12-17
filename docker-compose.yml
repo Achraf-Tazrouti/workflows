@@ -15,7 +15,7 @@ services:
       - MCP_BASE_URL=${MCP_BASE_URL:-}
 
     volumes:
-      - .:/workflows
+      - ./workflows:/workflows
       - ./init.sh:/docker-entrypoint-init.d/init.sh
       - n8n_data:/home/node/.n8n
 
