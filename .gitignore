@@ -1,0 +1,16 @@
+# Secrets - NOOIT committen!
+.env
+
+# Docker data
+n8n_data/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

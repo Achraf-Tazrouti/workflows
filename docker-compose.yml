@@ -1,15 +1,31 @@
 services:
   n8n:
     build: .
+    container_name: n8n-${CUSTOMER_ID:-default}
     ports:
-      - "5678:5678"
+      - "${N8N_PORT:-5678}:5678"
     env_file:
       - .env
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678}
+      - MCP_BASE_URL=${MCP_BASE_URL}
+      - CUSTOMER_ID=${CUSTOMER_ID}
+      - API_KEY=${API_KEY}
+      - DESKDRIVE_API_URL=${DESKDRIVE_API_URL}
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./workflows:/workflows
-      - ./import-workflows.sh:/import-workflows.sh
-    command: /bin/bash -c "/import-workflows.sh; n8n"
+      - ./workflows:/workflows:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
 volumes:
   n8n_data:
+    driver: local

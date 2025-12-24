@@ -1,5 +1,7 @@
 {
   "name": "chatbot_SenChraf",
+  "active": false,
+  "versionId": "imported-manual-003",
   "nodes": [
     {
       "parameters": {
@@ -107,7 +109,7 @@
     },
     {
       "parameters": {
-        "url": "https://app.deskdrive.com/app/seam/resource/rest/batch/json/7aa5b568-f4cb-43fa-893e-31b1405f2936?apiKey=6294344d-035f-4446-8c82-6e98b97f1edd&page=175",
+        "url": "={{ $env.DESKDRIVE_API_URL }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -250,11 +252,9 @@
       ]
     }
   },
-  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b84cec29-0201-4f95-b8dd-c7ebb3cbf3f2",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "84039ed517854c2c4d7b8185d3800f7b137aedff27ebbb28ab9d4fe922853d1b"
