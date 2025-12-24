@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8nio/n8n
+    build: .
     ports:
       - "5678:5678"
     env_file:
@@ -9,6 +9,7 @@ services:
       - n8n_data:/home/node/.n8n
       - ./workflows:/workflows
       - ./import-workflows.sh:/import-workflows.sh
+    command: /bin/bash -c "/import-workflows.sh; n8n"
 
 volumes:
   n8n_data:

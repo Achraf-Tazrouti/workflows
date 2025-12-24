@@ -1,5 +1,7 @@
 {
   "name": "achraf_email_generator_chatbot",
+  "active": false,
+  "versionId": "imported-manual-001",
   "nodes": [
     {
       "parameters": {
@@ -7,66 +9,46 @@
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [
-        560,
-        -32
-      ],
+      "position": [560, -32],
       "id": "7ad6d0a8-0fe6-409a-a51e-b3a3767669e2",
       "name": "Respond to Webhook"
     },
     {
       "parameters": {
         "options": {
-          "systemMessage": "=Je bent een professionele AI-e-mailgenerator. \nJe ENIGE taak is: zakelijke HTML-e-mails maken volgens de richtlijnen hieronder. \nJe mag GEEN andere soorten gesprekken voeren, geen uitleg geven, geen algemene kennis delen, geen follow-up vragen beantwoorden die niets met een e-mailopdracht te maken hebben.\n\n📌 DOMEINBEPERKING (ZEER STRICT)\n\nAls de gebruiker iets vraagt dat GEEN e-mailopdracht is, antwoord je ALTIJD:\n“Ik help u graag met het opstellen van zakelijke e-mails. Wat voor bericht wilt u maken?”\n— en niets anders.\n\nVoorbeelden van verboden vragen:\n- algemene kennis (“wat is het jaar?”)\n- meningen (“wat vind jij hiervan?”)\n- chatten (“hoe gaat het?”)\n- debugging of systeemvragen (“waarom zei je dat?”)\n- opdrachten buiten e-mails (“vertel een mop”, “leg X uit”)\n\nBij ongepaste of schadelijke inhoud:\n→ antwoord exact: “Dit verzoek kan ik niet verwerken.”\n\n📌 OUTPUTFORMAT — ALLEEN HTML MET <p> TAGS\n\nElke geldige opdracht resulteert ALTIJD in een volledige zakelijke e-mail:\n- Alleen <p> tags\n- 2–4 alinea’s, elke alinea 2–4 volledige zinnen\n- Nooit <html>, <body>, codeblokken of markdown\n\n📌 AANHEF (automatisch kiezen)\n\nFormeel:\n<p>Geachte ${contact.title!} ${contact.lastName!},</p>\n\nInformeel:\n<p>Beste ${contact.firstName!},</p>\n\nJe kiest automatisch op basis van de opdracht.\n\n📌 PLACEHOLDER LOGICA — KRACHTIG & SLIM\n\nGebruik placeholders ALLEEN als de gebruiker gegevens geeft die bedoeld zijn als STRUCTURELE gegevens:\n\n✔ ontvanger, naam, titel  \n✔ dossiernummer, referentie, code  \n✔ bedrag dat expliciet hoort bij een factuur  \n✔ contactgegevens  \n✔ PO-nummer  \n✔ gegevens die duidelijk bij een entiteit horen  \n\nGebruik NOOIT placeholders wanneer de informatie inhoudelijk is:\n\n- “Peter zal aanwezig zijn”\n- “Steven heeft bevestigd”\n- “Tanja stuurt het later op”\n- “350 euro moet betaald worden”\n\nSTRUCTUUR → placeholder  \nINHOUD → letterlijk laten staan\n\n📌 TOEGESTANE PLACEHOLDERS (ENKEL DEZE)\n\nContactpersoon:\n${contact.title!}\n${contact.firstName!}\n${contact.lastName!}\n${contact.email!}\n${contact.phone!}\n${contact.gsm!}\n\nAfzender:\n${user.name!}\n${user.email!}\n${user.gsm!}\n\nEntiteit:\n${entity.code!}\n${entity.totalPrice!}\n${entity.summary!}\n${entity.poNumber!}\n${entity.owner.phone!}\n${entity.owner.mobile!}\n${entity.owner.email!}\n\nOverige:\n${form.code!}\n\n📌 VERPLICHTE AFSLUITING\n\n<p>Met vriendelijke groet,</p>\n<p>${user.name!}</p>\n<p>GSM: ${user.gsm!} · E-mail: ${user.email!}</p>\n\n📌 GEDRAG — STRIKT\n\nAls de input GEEN e-mailopdracht bevat →  \n“Uw vraag is niet helemaal duidelijk. Kunt u specifieker aangeven welke e-mail u graag wilt laten opstellen?”\n\nAls de input NIET in jouw domein valt (zoals algemene vragen) →  \n“Ik help u graag met het opstellen van zakelijke e-mails. Wat voor bericht wilt u maken?”\n\nAls de input ongepast is →  \n“Dit verzoek kan ik niet verwerken.”\n\nJe geeft NOOIT uitleg of analyse. Alleen volledige e-mails of standaardreacties."
+          "systemMessage": "=Je bent een professionele AI-e-mailgenerator.\nJe ENIGE taak is: zakelijke HTML-e-mails maken volgens de richtlijnen hieronder.\nJe mag GEEN andere soorten gesprekken voeren.\n\n📌 OUTPUTFORMAT\n- Alleen <p> tags\n- 2–4 alinea’s\n\n📌 AANHEF\nFormeel:\n<p>Geachte ${contact.title!} ${contact.lastName!},</p>\n\nInformeel:\n<p>Beste ${contact.firstName!},</p>\n\n📌 AFSLUITING\n<p>Met vriendelijke groet,</p>\n<p>${user.name!}</p>\n<p>GSM: ${user.gsm!} · E-mail: ${user.email!}</p>"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
-      "position": [
-        224,
-        -32
-      ],
+      "position": [224, -32],
       "id": "b07cd307-6786-45b1-bff8-21bb6affe604",
-      "name": "AI Agent1"
+      "name": "AI Agent"
     },
     {
       "parameters": {
-        "jsCode": "// Haal chat data op uit de Chat-node\nconst chat = $('Chat').first().json;\n\n// Extract values\nconst chatInput = chat.chatInput || \"\";\nconst sessionId = chat.sessionId || null;\n\n// Bouw de output voor de AI-agent\nreturn [\n  {\n    json: {\n      chatInput,\n      sessionId\n    }\n  }\n];\n"
+        "jsCode": "// Haal chat data op\nconst chat = $('Chat').first().json;\n\nreturn [{\n  json: {\n    chatInput: chat.chatInput || \"\",\n    sessionId: chat.sessionId || null\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        16,
-        -32
-      ],
+      "position": [16, -32],
       "id": "a0986341-589a-4170-86d7-816e306c34ac",
-      "name": "Code in JavaScript"
+      "name": "Code"
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
           "value": "anthropic/claude-3.5-sonnet",
-          "mode": "list",
-          "cachedResultName": "anthropic/claude-3.5-sonnet"
+          "mode": "list"
         },
-        "builtInTools": {},
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
-      "position": [
-        144,
-        192
-      ],
+      "position": [144, 192],
       "id": "251f36d1-e8d0-46b1-a7b7-63ccd3bb092a",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "3p5Y3NNCXJ9Qs3uU",
-          "name": "OpenAi account"
-        }
-      }
+      "name": "Chat Model"
     },
     {
       "parameters": {
@@ -76,97 +58,39 @@
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
-      "position": [
-        320,
-        192
-      ],
+      "position": [320, 192],
       "id": "03cd4855-e75a-4e8d-acbf-00f44878fa71",
-      "name": "chat memory"
+      "name": "Chat Memory"
     },
     {
       "parameters": {
         "public": true,
-        "initialMessages": "template generator",
-        "options": {}
+        "initialMessages": "template generator"
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
-      "position": [
-        -192,
-        -32
-      ],
+      "position": [-192, -32],
       "id": "8c01ad59-093e-42c7-8039-d900b5720ae0",
-      "name": "Chat",
-      "webhookId": "8a2a1aa0-aa2f-4c82-85ee-89cc382513c8"
+      "name": "Chat"
     }
   ],
-  "pinData": {},
   "connections": {
-    "AI Agent1": {
-      "main": [
-        [
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "chat memory": {
-      "ai_memory": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Chat": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Code", "type": "main", "index": 0 }]]
+    },
+    "Code": {
+      "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]]
+    },
+    "Chat Model": {
+      "ai_languageModel": [[{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Chat Memory": {
+      "ai_memory": [[{ "node": "AI Agent", "type": "ai_memory", "index": 0 }]]
+    },
+    "AI Agent": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
     }
   },
-  "active": true,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "fd234538-9d7a-46d5-b2f3-883889000c81",
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "29e29af58e9a6b910d94609967d54f3dd2a28790d86814cd356510f05f3ee0ae"
-  },
-  "id": "BInJHaua0gIDTkYi",
+  "pinData": {},
   "tags": []
 }
