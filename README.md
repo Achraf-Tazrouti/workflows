@@ -1,3 +1,24 @@
+## OpenRouter API placeholders
+
+Plaats deze in je `.env`-bestand:
+
+```
+OPENROUTER_API_URL=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=plak_hier_jouw_api_key
+```
+# OpenRouter API credentials instellen
+
+Voeg de volgende placeholders toe aan je `.env`-bestand in de root van je project:
+
+```
+OPENROUTER_API_URL=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=plak_hier_jouw_api_key
+```
+
+**Gebruik deze placeholders in je n8n credentials:**
+- API Key: `={{ $env.OPENROUTER_API_KEY }}`
+- Base URL: `={{ $env.OPENROUTER_API_URL }}`
+
 # N8N Workflows - ${CUSTOMER_ID}
 
 N8N instance met geautomatiseerde workflow import.

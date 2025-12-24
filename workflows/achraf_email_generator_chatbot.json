@@ -48,7 +48,14 @@
       "typeVersion": 1.3,
       "position": [144, 192],
       "id": "251f36d1-e8d0-46b1-a7b7-63ccd3bb092a",
-      "name": "Chat Model"
+      "name": "Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAi account",
+          "apiKey": "={{ $env.OPENROUTER_API_KEY }}",
+          "basePath": "={{ $env.OPENROUTER_API_URL }}"
+        }
+      }
     },
     {
       "parameters": {

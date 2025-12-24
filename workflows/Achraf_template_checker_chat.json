@@ -52,7 +52,9 @@
       "name": "Chat Model",
       "credentials": {
         "openAiApi": {
-          "name": "OpenAi account"
+          "name": "OpenAi account",
+          "apiKey": "={{ $env.OPENROUTER_API_KEY }}",
+          "basePath": "={{ $env.OPENROUTER_API_URL }}"
         }
       }
     },

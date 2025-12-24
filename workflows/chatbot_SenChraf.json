@@ -72,11 +72,9 @@
       ],
       "id": "6b9ffb62-f440-4230-a661-efee06e47585",
       "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "VHowYCVYW6U2h5gh",
-          "name": "OpenAi account"
-        }
+      "options": {
+        "apiKey": "={{ $env.OPENROUTER_API_KEY }}",
+        "basePath": "={{ $env.OPENROUTER_API_URL }}"
       }
     },
     {
