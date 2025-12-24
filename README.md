@@ -1,10 +1,3 @@
-## OpenRouter API placeholders
-
-Plaats deze in je `.env`-bestand:
-
-```
-OPENROUTER_API_URL=https://openrouter.ai/api/v1
-OPENROUTER_API_KEY=plak_hier_jouw_api_key
 ```
 # OpenRouter API credentials instellen
 
