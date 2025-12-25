@@ -1,6 +1,6 @@
-# OpenRouter API credentials instellen
+## OpenRouter API placeholders
 
-Voeg de volgende placeholders toe aan je `.env`-bestand in de root van je project:
+Plaats deze in je `.env`-bestand:
 
 ```
 OPENROUTER_API_URL=https://openrouter.ai/api/v1
