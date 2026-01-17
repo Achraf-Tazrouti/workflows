@@ -1,7 +1,11 @@
 {
+  "id": "ACHRAF_EMAIL_GENERATOR_CHATBOT_001",
   "name": "achraf_email_generator_chatbot",
   "active": false,
   "versionId": "imported-manual-001",
+  "meta": {
+    "instanceId": "achraf-n8n-instance"
+  },
   "nodes": [
     {
       "parameters": {

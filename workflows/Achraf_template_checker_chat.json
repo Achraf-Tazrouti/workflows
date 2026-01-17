@@ -1,7 +1,11 @@
 {
+  "id": "ACHRAF_TEMPLATE_CHECKER_CHAT_001",
   "name": "Achraf_template_checker_chat",
   "active": false,
   "versionId": "imported-manual-002",
+  "meta": {
+    "instanceId": "achraf-n8n-instance"
+  },
   "nodes": [
     {
       "parameters": {
