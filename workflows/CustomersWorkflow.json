@@ -11,14 +11,14 @@
         0,
         0
       ],
-      "id": "505d0744-ec6e-4133-aecc-d4f86511a86b",
+      "id": "7a026f36-d384-4205-8966-cf896102bdce",
       "name": "When chat message received",
       "webhookId": "c3b921f4-d639-46e6-9c1a-4dce08614ac6"
     },
     {
       "parameters": {
         "options": {
-          "systemMessage": "You are an AI agent connected to an MCP server.\n\nYou have access to the following MCP tools:\n- getAllCustomers\n- getCustomerByName\n- getCustomerByUuid\n\nYOUR TASK:\n1. Read the user's question.\n2. Decide which MCP tool is required.\n3. Call exactly ONE MCP tool with the correct arguments.\n4. Use ONLY the returned tool data to answer the question.\n\nSTRICT RULES:\n- You MUST call a tool before answering.\n- You MUST NOT answer from prior knowledge.\n- If the tool returns no usable data, you MUST say:\n  \"The MCP tool returned no usable content. This is what it returned {value that the tool returned}\"\n\nIMPORTANT:\n- If the user asks for all customers → call `getAllCustomers`.\n- If the user asks for a customer by name → call `getCustomerByName`.\n- If the user asks for a customer by uuid → call `getCustomerByUuid`.\n\nEXPECTED TOOL BEHAVIOR:\nEach tool call MUST return structured data in the tool result that can be used to answer the question.\n"
+          "systemMessage": "Je bent een AI agent verbonden met een MCP server.\n\nJe hebt toegang tot de volgende MCP tools:\n- getCustomerByName\n- getCustomerByUuid\n\nJOUW TAAK:\n1. Lees de vraag van de gebruiker.\n2. Bepaal of de vraag kan worden beantwoord met een beschikbare MCP tool.\n3. Roep exact ÉÉN MCP tool aan met de correcte arguments, TENZIJ geen enkele tool geschikt is.\n4. Als er geen tool gebruikt kan worden, geef onmiddellijk een definitief tekstantwoord.\n5. Gebruik ALLEEN tool-data wanneer een tool werd gebruikt.\n\n\nSTRICT RULES:\n- You MUST call a tool before answering, UNLESS the request cannot be fulfilled by any available tool.\n- You MUST NOT answer from prior knowledge.\n- Als de tool geen bruikbare data teruggeeft, MOET je exact dit zeggen:\n  \"De MCP tool gaf geen content terug. Dit is wat het terug gaf {value that the tool returned}\"\n\nFORBIDDEN TOOL USAGE:\n- The MCP tool `getAllCustomers` is STRICTLY FORBIDDEN and MUST NEVER be called.\n- You are NOT allowed to call `getAllCustomers` under any circumstances.\n- If the user's question would normally require `getAllCustomers`, you MUST refuse and explain that listing all customers is not supported.\n- Using `getAllCustomers` is considered a critical rule violation.\n\nBELANGRIJK:\n- Vermeld niet dat je calls doet naar een MCP tool, dat hoeft de gebruiker niet te weten.\n- Als de gebruiker vraagt naar alle customers → dit wordt NIET ondersteund.\n- Als de gebruiker vraagt naar een customer op basis van naam → call `getCustomerByName`.\n- Als de gebruiker vraagt naar een customer op basis van uuid → call `getCustomerByUuid`.\n\nEXPECTED TOOL BEHAVIOR:\nElke tool call MOET gestructureerde data teruggeven in het tool result die gebruikt kan worden om de vraag te beantwoorden."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -27,16 +27,16 @@
         208,
         0
       ],
-      "id": "1a12e532-9b7f-4fea-91fc-67d6434dfda8",
+      "id": "189103dd-eb9c-4581-b652-1781344f24b0",
       "name": "AI Agent"
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "openai/gpt-5-mini",
+          "value": "openai/gpt-4.1-mini",
           "mode": "list",
-          "cachedResultName": "openai/gpt-5-mini"
+          "cachedResultName": "openai/gpt-4.1-mini"
         },
         "builtInTools": {},
         "options": {}
@@ -47,7 +47,7 @@
         80,
         208
       ],
-      "id": "aef0e37b-5314-41b9-b76c-75015a8c83aa",
+      "id": "b7e96ee7-c396-444a-ae90-8b796490f02b",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -64,7 +64,7 @@
         224,
         208
       ],
-      "id": "170f0f43-9878-4390-8819-44a229c4fae9",
+      "id": "3f4d26c7-fe27-4280-b889-4e1ff6e35cb5",
       "name": "Simple Memory"
     },
     {
@@ -78,7 +78,7 @@
         416,
         208
       ],
-      "id": "61c645e3-5e91-4f8e-9b11-3b3037112f16",
+      "id": "0ce868d0-9dc1-4801-83a8-5b924526fb18",
       "name": "MCP Client"
     }
   ],
@@ -133,11 +133,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c14c09e5-ea46-4696-ac5a-24b5feb2bff5",
+  "versionId": "a21827e8-eb30-44c2-aab3-28d7cf5e6aeb",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "509d7b2f3a3211eec425be236bbc937aad0198c8c94fbccc04d4141d50b534bf"
   },
-  "id": "ki3uKJq846HmvgfA",
+  "id": "XMbKYttZdDVZ6ygw",
   "tags": []
 }
