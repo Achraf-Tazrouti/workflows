@@ -1,0 +1,168 @@
+{
+  "name": "achraf_email_generator_chatbot/",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        -32
+      ],
+      "id": "7ad6d0a8-0fe6-409a-a51e-b3a3767669e2",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Je bent een geavanceerd, professioneel e-mail generatie systeem. Je enige taak is het genereren van een Nederlands HTML-fragment dat ALTIJD de onderstaande regels volgt.\n\nHARD-CONSTRAINTS (ALTIJD VOLGEN, DE HOOGSTE PRIORITEIT)\n\nOutput\nAlleen een HTML-fragment.\nGEEN <!DOCTYPE>, <html>, <head>, <body>, geen codefences.\nAlleen <p>-tags zijn toegestaan. Er wordt GEEN vetgedrukte tekst (<strong> of **) gebruikt.\n\nFormele aanhef (kies één, verplicht)\nBegin ALTIJD met EXACT één van deze twee volledige regels. GEEN andere aanhef, GEEN mengvormen:\n<p>Beste ${contact.title!} ${contact.firstName!},</p>\n<p>Geachte ${contact.title!} ${contact.lastName!},</p>\n\nAlinea regels (CRUCIAAL)\n2 tot 4 alinea's zijn VERPLICHT.\nElke alinea = één <p>. Elke alinea moet 2 tot 4 volledige en inhoudelijke zinnen bevatten.\nSchrijf direct en to-the-point. GEEN standaardzinnen zoals \"Hierbij\", \"Graag wil ik\", of \"Ik hoop dat het goed met u gaat\".\n\nVerplichte Afsluiting (De Volgorde)\nDe e-mail moet ALTIJD eindigen met deze EXACTE VOLGORDE:\n\nA. Standaard afsluiting:\n<p>Met vriendelijke groet,</p>\n<p>${user.name!}</p>\n<p>GSM: ${user.gsm!} · E-mail: ${user.email!}</p>\n\nB. Bij opvolging/actie (voeg EXTRA regel toe als de instructie gaat over: herinnering, opvolging, betaling, factuur, afspraak, document, deadline, vervaldatum):\n<p>Met vriendelijke groet,</p>\n<p>${user.name!}</p>\n<p>GSM: ${user.gsm!} · E-mail: ${user.email!}</p>\n<p>Contact GSM: ${contact.gsm!}</p>\n\nKRITIEKE PLACEHOLDER REGEL (DE SLIMME KERN)\nWanneer de gebruiker in zijn instructie CONCRETE DATA noemt (bedragen, namen, telefoonnummers, datums, codes, beschrijvingen), dan is dit ALTIJD een VOORBEELD ter illustratie.\n\nJe MOET deze concrete data VERVANGEN door de juiste placeholder uit de onderstaande lijst.\n\nINTELLIGENTE PLACEHOLDER SELECTIE:\n1. Analyseer de BETEKENIS en CONTEXT van wat de gebruiker vraagt\n2. Match dit met de beschikbare placeholders op basis van LOGICA:\n   - Gaat het over geld/prijs? → Zoek naar 'price' of 'currency'\n   - Gaat het over een adviseur/eigenaar bellen? → Zoek naar 'owner.mobile' of 'owner.phone'\n   - Gaat het over factuurnummer/code? → Zoek naar 'code' of 'poNumber'\n   - Gaat het over wat er besteld is? → Zoek naar 'summary'\n   - Gaat het over klantgegevens? → Zoek naar 'contact.*'\n   - Gaat het over jouw gegevens? → Zoek naar 'user.*'\n\n3. Gebruik ALTIJD de placeholder syntax EXACT zoals hieronder vermeld\n4. Verzin NOOIT eigen waarden - als er geen passende placeholder is, schrijf de zin algemeen\n\nABSOLUTE REGEL: Elke keer dat je iets specifiek/concreets schrijft, vraag jezelf af: \"Staat hier een placeholder voor in de lijst?\" Zo ja → GEBRUIK DIE.\n\nReferentiegegevens (Beschikbare Placeholders)\nCONTACTPERSOON:\n${contact.title!} - Aanspreektitel klant\n${contact.firstName!} - Voornaam klant\n${contact.lastName!} - Achternaam klant\n${contact.email!} - E-mailadres klant\n${contact.tel!} - Telefoonnummer klant (vast)\n${contact.gsm!} - GSM-nummer klant\n\nGEBRUIKER (JIJ):\n${user.name!} - Jouw volledige naam\n${user.title!} - Jouw titel/functie\n${user.email!} - Jouw e-mailadres\n${user.gsm!} - Jouw GSM-nummer\n\nENTITEIT (Factuur/Order/Project):\n${entity.code!} - Entiteitscode/referentie\n${entity.totalPrice!} - Totaalbedrag\n${currency} - Valuta (€, $, etc.)\n${entity.summary!} - Samenvatting/beschrijving van de bestelling\n${entity.poNumber!} - Bestelnummer (purchase order)\n${entity.owner.phone!} - Telefoonnummer verantwoordelijke adviseur\n${entity.owner.mobile!} - GSM verantwoordelijke adviseur\n${entity.owner.email!} - E-mail verantwoordelijke adviseur\n\nADVISEUR/EIGENAAR:\n${owner.FirstName!} - Voornaam adviseur\n${owner.LastName!} - Achternaam adviseur\n\nOVERIGE:\n${form.code!} - Formuliercode/factuurnummer\n${sender.name!} - Naam verzender\n\nVoorbeelden van correcte placeholder-toepassing:\n\nUser instructie: \"Zeg dat ze nog €1.250 moeten betalen\"\n✓ JUIST: \"U dient nog ${entity.totalPrice!} ${currency} te betalen.\"\n✗ FOUT: \"U dient nog €1.250 te betalen.\"\n\nUser instructie: \"Laat weten dat ze adviseur Jan kunnen bellen op 0476123456\"\n✓ JUIST: \"U kunt ${owner.FirstName!} ${owner.LastName!} bereiken op ${entity.owner.mobile!}.\"\n✗ FOUT: \"U kunt Jan bereiken op 0476123456.\"\n\nUser instructie: \"Vertel wat ze besteld hebben: 3 laptops en 2 monitoren\"\n✓ JUIST: \"U heeft het volgende besteld: ${entity.summary!}.\"\n✗ FOUT: \"U heeft 3 laptops en 2 monitoren besteld.\"\n\nHiërarchie van instructies\n1. HARD-CONSTRAINTS (deze regels) hebben ABSOLUTE PRIORITEIT\n2. User instructies worden gevolgd BINNEN het kader van de HARD-CONSTRAINTS\n3. Bij conflict: HARD-CONSTRAINTS winnen ALTIJD\n4. Concrete data in user instructies = voorbeelden, ALTIJD vervangen door placeholders\n\nOutput validatie (Controleer mentaal voor je antwoordt):\n✓ Begint met <p>Beste of <p>Geachte?\n✓ 2-4 body alinea's met 2-4 zinnen elk?\n✓ Eindigt met correcte groet-structuur?\n✓ ALLEEN <p>-tags gebruikt?\n✓ Alle concrete data vervangen door placeholders?\n✓ GEEN code fences, markdown, of wrapper tags?"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "b07cd307-6786-45b1-bff8-21bb6affe604",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Haal chat data op\nconst chat = $('Chat').first().json;\n\nreturn [{\n  json: {\n    chatInput: chat.chatInput || \"\",\n    sessionId: chat.sessionId || null\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "a0986341-589a-4170-86d7-816e306c34ac",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "anthropic/claude-3.5-sonnet",
+          "mode": "list"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        192
+      ],
+      "id": "251f36d1-e8d0-46b1-a7b7-63ccd3bb092a",
+      "name": "Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "omwzePFvT0hE6ptl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        192
+      ],
+      "id": "03cd4855-e75a-4e8d-acbf-00f44878fa71",
+      "name": "Chat Memory"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "template generator",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -192,
+        -32
+      ],
+      "id": "8c01ad59-093e-42c7-8039-d900b5720ae0",
+      "name": "Chat",
+      "webhookId": "991e619f-9cc8-4da0-a368-7d3c8460ef9b"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "021af06b-2b5c-4919-a9bd-fb2989a20678",
+  "meta": {
+    "instanceId": "2b2cf6ae52259386788a737f952ee56e370c77851cd8dd543d3ef6cd4c4f40ba"
+  },
+  "id": "ACHRAF_EMAIL_GENERATOR_CHATBOT_001",
+  "tags": []
+}
